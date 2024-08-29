@@ -1,7 +1,5 @@
-package com.sitix.model.dto.request;
+package com.sitix.model.dto.response;
 
-
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionDetailRequest {
+public class TransactionDetailResponse {
     private String id;
-    private String ticketCategoryId;
     private Integer quantity;
+    private String transactionId;
+    private String ticketCategoryName;
+    private String eventName;
 }

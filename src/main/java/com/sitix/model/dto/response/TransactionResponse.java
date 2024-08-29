@@ -1,9 +1,12 @@
 package com.sitix.model.dto.response;
 
+import com.sitix.model.entity.TransactionDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -11,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TransactionResponse {
     private String id;
-    private String ticketCategoryName;
-    private Integer quantity;
-
+    private List<TransactionDetailResponse> transactionDetails;
+    private String paymentUrl;
 }

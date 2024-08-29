@@ -50,8 +50,14 @@ public class CustomerController {
     //ADMIN AUTHORITY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<CustomerResponse> getAllCustomer() {
-        return customerService.viewAllCustomer();
+    public ResponseEntity<CommonResponse<List<CustomerResponse>>> getAllCustomer() {
+        List<CustomerResponse> customerResponsesList = customerService.viewAllCustomer();
+        CommonResponse<List<CustomerResponse>> response = CommonResponse.<List<CustomerResponse>> builder()
+                .message("Success Load All Customer")
+                .data(Optional.of(customerResponsesList))
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

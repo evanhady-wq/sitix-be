@@ -17,10 +17,12 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "path", nullable = false)
+    private String contentType;
+
+    private Long size;
+
     private String path;
 
    @Lob

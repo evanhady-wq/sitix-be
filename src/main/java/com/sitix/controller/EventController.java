@@ -5,12 +5,19 @@ import com.sitix.model.dto.request.EventRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.CreatorResponse;
 import com.sitix.model.dto.response.EventResponse;
+import com.sitix.model.dto.response.ImageResponse;
 import com.sitix.model.service.EventService;
+import com.sitix.model.service.FileStorageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +27,36 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
+    private final FileStorageService fileStorageService;
+
 
     private CommonResponse<EventResponse> generateEventResponse(String message, Optional<EventResponse> event) {
         return CommonResponse.<EventResponse>builder()
                 .message(message)
                 .data(event)
                 .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_CREATOR')")
+    @PostMapping("/poster")
+    public ResponseEntity<CommonResponse<ImageResponse>> uploadPoster(@RequestParam("poster") MultipartFile poster) {
+        ImageResponse response = eventService.uploadPoster(poster);
+
+        CommonResponse<ImageResponse> commonResponse = CommonResponse.<ImageResponse>builder()
+                .message("File uploaded successfully")
+                .data(Optional.of(response))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(commonResponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_CREATOR')")
+    @GetMapping("/poster/{fileName}")
+    public ResponseEntity<ByteArrayResource> getPoster(@PathVariable String fileName) {
+        byte[] image = fileStorageService.loadImage(fileName);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(new ByteArrayResource(image));
     }
 
     @PreAuthorize("hasRole('ROLE_CREATOR')")
@@ -37,16 +68,86 @@ public class EventController {
     }
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @GetMapping("/all")
-    public List<EventResponse> viewAllEvent(){
-        return eventService.viewAllEvent();
+    @GetMapping
+    public ResponseEntity<CommonResponse<List<EventResponse>>> viewAllEvent(){
+        List<EventResponse> eventResponseList = eventService.viewAllEvent();
+        CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
+                .message("Success Load All Event")
+                .data(Optional.of(eventResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_CREATOR')")
+    @GetMapping("/{id}")
+    public ResponseEntity<CommonResponse<EventResponse>> viewEvent(@PathVariable String id){
+        EventResponse eventResponse = eventService.findEventById(id);
+        CommonResponse<EventResponse> response = generateEventResponse("Event By Id", Optional.of(eventResponse));
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_CREATOR')")
     @GetMapping("/myevent")
-    public List<EventResponse> viewCreatorEvent(){
-        return eventService.viewCreatorEvent();
+    public ResponseEntity<CommonResponse<List<EventResponse>>> viewCreatorEvent(){
+        List<EventResponse> eventResponseList = eventService.viewCreatorEvent();
+        CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
+                .message("Success Load Your Event")
+                .data(Optional.of(eventResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("hasRole('ROLE_CREATOR')")
+    @PutMapping("/myevent")
+    public ResponseEntity<CommonResponse<EventResponse>> updateMyEvent(@RequestBody EventRequest eventRequest){
+        EventResponse eventResponseList = eventService.updateEvent(eventRequest);
+        CommonResponse<EventResponse> response = generateEventResponse("Your Event Updated Successfully", Optional.of(eventResponseList));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<List<EventResponse>>> viewEventByName(@RequestParam String name){
+        List<EventResponse> eventResponseList = eventService.findEventByName(name);
+        CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
+                .message("Success Load Event")
+                .data(Optional.of(eventResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    @GetMapping("/category/{id}")
+    public ResponseEntity<CommonResponse<List<EventResponse>>> viewEventByCategory(@PathVariable String id){
+        List<EventResponse> eventResponseList = eventService.findEventByCategory(id);
+        CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
+                .message("Success Load Event")
+                .data(Optional.of(eventResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    @GetMapping("/upcoming")
+    public ResponseEntity<CommonResponse<List<EventResponse>>> viewUpcomingEvent (){
+        List<EventResponse> eventResponseList = eventService.viewUpcomingEvent();
+        CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
+                .message("Success Load Upcoming Event")
+                .data(Optional.of(eventResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 
 
 }

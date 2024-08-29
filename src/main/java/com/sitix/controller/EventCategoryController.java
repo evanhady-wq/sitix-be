@@ -1,12 +1,9 @@
 package com.sitix.controller;
 
 import com.sitix.constant.APIUrl;
-import com.sitix.model.dto.request.CreatorRequest;
 import com.sitix.model.dto.request.EventCategoryRequest;
 import com.sitix.model.dto.response.CommonResponse;
-import com.sitix.model.dto.response.CreatorResponse;
 import com.sitix.model.dto.response.EventCategoryResponse;
-import com.sitix.model.service.CreatorService;
 import com.sitix.model.service.EventCategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +36,14 @@ public class EventCategoryController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<EventCategoryResponse> getAllCreator(){
-        return eventCategoryService.viewAllEventCategory();
+    public ResponseEntity<CommonResponse<List<EventCategoryResponse>>> getAllEventCategory(){
+        List<EventCategoryResponse> eventCategoryResponseList = eventCategoryService.viewAllEventCategory();
+        CommonResponse<List<EventCategoryResponse>> response = CommonResponse.<List<EventCategoryResponse>> builder()
+                .message("Success Load All Category Event")
+                .data(Optional.of(eventCategoryResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

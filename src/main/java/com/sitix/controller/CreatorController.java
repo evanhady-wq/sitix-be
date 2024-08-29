@@ -51,8 +51,14 @@ public class CreatorController {
     //ADMIN AUTHORITY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<CreatorResponse> getAllCreator(){
-        return creatorService.viewAllCreator();
+    public ResponseEntity<CommonResponse<List<CreatorResponse>>> getAllCreator(){
+        List<CreatorResponse> creatorResponseList = creatorService.viewAllCreator();
+        CommonResponse<List<CreatorResponse>> response = CommonResponse.<List<CreatorResponse>> builder()
+                .message("Success Load All Creator")
+                .data(Optional.of(creatorResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

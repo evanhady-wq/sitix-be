@@ -19,7 +19,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
     @Query(value = "SELECT * FROM m_event WHERE name ILIKE CONCAT('%', :name, '%')", nativeQuery = true)
     List<Event> findAllByNameContaining(@Param("name")String name);
 
-    @Query(value = "SELECT * FROM m_event LEFT JOIN m_event.event_category_id ON m_event_category.id WHERE event_category_id.id = :category", nativeQuery = true)
+    @Query(value = "SELECT * FROM m_event WHERE event_category_id = :category", nativeQuery = true)
     List<Event> findByEventCategory(@Param("category")String category);
 }
 

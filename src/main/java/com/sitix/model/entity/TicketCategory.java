@@ -25,4 +25,19 @@ public class TicketCategory {
     private Integer quota;
     private Double price;
 
+    public boolean hasAvailableTickets(int quantity) {
+        return quota >= quantity;
+    }
+
+    public void reduceQuota(int quantity) {
+        if (quota >= quantity) {
+            this.quota -= quantity;
+        } else {
+            throw new IllegalArgumentException("Not enough tickets available");
+        }
+    }
+
+    public void increaseQuota(int quantity) {
+        this.quota += quantity;
+    }
 }

@@ -35,8 +35,8 @@ public class Transaction {
     private LocalDate paidAt;
 
     public enum Status {
-        PAID,
         UNPAID,
+        PAID,
         CANCELLED
     }
 
