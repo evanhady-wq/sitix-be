@@ -11,6 +11,7 @@ import com.sitix.model.service.TransactionService;
 import com.sitix.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionDetailRepository transactionDetailRepository;
     private final TicketRepository ticketRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${server.key.midtrans}")
+    private String serverKey;
 
     private TransactionResponse generateTransactionResponse(Transaction transaction) {
         List<TransactionDetailResponse> transactionDetailResponseList = new ArrayList<>();
@@ -53,6 +57,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     public TransactionResponse createTransaction(TransactionRequest transactionRequest) {
+
         User loggedIn = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Customer customer = customerRepository.findByUserId(loggedIn.getId());
         Transaction transaction = Transaction.builder()
@@ -101,7 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
     public String payTransaction(String id, Double totalPayment, List<TransactionDetail> details) {
         String uniqueOrderId = details.get(0).getTransaction().getId();
         String url = "https://app.sandbox.midtrans.com/snap/v1/transactions";
-        String midtransServerKey = "SB-Mid-server-5WH6ehzAiCWvPQV1DYJp59g9";
+        String midtransServerKey = serverKey;
         Map<String, Object> params = new HashMap<>();
 
         Map<String, Object> transactionDetails = new HashMap<>();

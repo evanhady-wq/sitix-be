@@ -1,0 +1,17 @@
+[33mcommit 8915856af07622952f9771c05c69fa135fbe15d1[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31mstream/master[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: GEMILANG EVAN HADYANATHA <evanhady01@gmail.com>
+Date:   Fri Aug 30 10:27:33 2024 +0700
+
+    Feat: Add Forgot password,etc; FIX: required entity
+
+[33mcommit 41f35a790a8b80abcef6d34f4bc9b2350319b111[m
+Author: GEMILANG EVAN HADYANATHA <evanhady01@gmail.com>
+Date:   Thu Aug 29 08:07:31 2024 +0700
+
+    Feat: Midtrans Payment
+
+[33mcommit 8868620d5df0427267a6a667549c416577ac7767[m
+Author: GEMILANG EVAN HADYANATHA <evanhady01@gmail.com>
+Date:   Tue Aug 27 20:19:25 2024 +0700
+
+    first commit
