@@ -56,7 +56,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Thumbnails.of(filePath.toFile())
-                    .size(400, 400)
+                    .size(1000, 1000)
+                    .keepAspectRatio(true)
                     .outputFormat("jpg")
                     .toOutputStream(outputStream);
 

@@ -23,26 +23,4 @@ public class TransactionDetailServiceImpl {
     private final TicketCategoryRepository ticketCategoryRepository;
     private final EventRepository eventRepository;
 
-    public TransactionDetailResponse createDetail(TransactionDetailRequest transactionDetailRequest){
-        TicketCategory ticketCategory = ticketCategoryRepository.findById(transactionDetailRequest.getTicketCategoryId()).orElseThrow(()-> new ResourceNotFoundException("Not Found"));
-
-        if(!ticketCategory.hasAvailableTickets(transactionDetailRequest.getQuantity())){
-            throw new RuntimeException("No available tickets for the selected category");
-        }
-
-        TransactionDetail transactionDetail = TransactionDetail.builder()
-                .ticketCategory(ticketCategory)
-                .quantity(transactionDetailRequest.getQuantity())
-                .build();
-
-        transactionDetailRepository.save(transactionDetail);
-        ticketCategory.reduceQuota(transactionDetail.getQuantity());
-        ticketCategoryRepository.save(ticketCategory);
-
-        return TransactionDetailResponse.builder()
-                .id(transactionDetail.getId())
-                .ticketCategoryName(transactionDetail.getTicketCategory().getName())
-                .quantity(transactionDetail.getQuantity())
-                .build();
-    }
 }

@@ -33,12 +33,12 @@ public class EventServiceImpl implements EventService {
     private final FileStorageService fileStorageService;
     private final ImageRepository imageRepository;
 
-    public EventResponse createEvent (EventRequest eventRequest){
+    public EventResponse createEvent(EventRequest eventRequest) {
 
         User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Creator creator = creatorRepository.findByUserId(loggedInUser.getId());
 
-        Optional<EventCategory> eventCategoryOptional =  eventCategoryRepository.findByCategoryName(eventRequest.getEventCategory());
+        Optional<EventCategory> eventCategoryOptional = eventCategoryRepository.findById(eventRequest.getEventCategory());
         EventCategory eventCategory = eventCategoryOptional.orElseThrow(() -> new ResourceNotFoundException("Event Category Not Found"));
 
         Event event = Event.builder()
@@ -46,7 +46,9 @@ public class EventServiceImpl implements EventService {
                 .category(eventCategory)
                 .date(eventRequest.getDate())
                 .description(eventRequest.getDescription())
-                .location(eventRequest.getLocation())
+                .city(eventRequest.getCity())
+                .address(eventRequest.getAddress())
+                .linkMaps(eventRequest.getLinkMap())
                 .eventCreator(creator)
                 .build();
 
@@ -54,7 +56,7 @@ public class EventServiceImpl implements EventService {
 
         List<TicketCategoryRequest> ticketCategoryList = eventRequest.getTicketCategories();
         List<TicketCategory> ticketCategories = new ArrayList<>();
-        for(TicketCategoryRequest ticketCategory : ticketCategoryList){
+        for (TicketCategoryRequest ticketCategory : ticketCategoryList) {
             TicketCategory ticketCategory1 = TicketCategory.builder()
                     .event(event)
                     .name(ticketCategory.getName())
@@ -66,7 +68,7 @@ public class EventServiceImpl implements EventService {
             ticketCategoryRepository.saveAndFlush(ticketCategory1);
         }
         event.setTicketCategories(ticketCategories);
-        eventRepository.saveAndFlush(event);
+        Event eventSaved =eventRepository.saveAndFlush(event);
         return generateEventResponse(event);
 
 //        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -98,11 +100,11 @@ public class EventServiceImpl implements EventService {
 //        return generateEventResponse(event);
     }
 
-    public List<EventResponse> viewAllEvent (){
+    public List<EventResponse> viewAllEvent() {
         return eventRepository.findAll().stream().map(this::generateEventResponse).toList();
     }
 
-    public List<EventResponse> viewCreatorEvent(){
+    public List<EventResponse> viewCreatorEvent() {
         User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Creator creator = creatorRepository.findByUserId(loggedInUser.getId());
 
@@ -116,9 +118,9 @@ public class EventServiceImpl implements EventService {
 //      eventRepository.delete(event);
 //    }
 
-    public void deleteTicketCategory(String id){
+    public void deleteTicketCategory(String id) {
         Optional<TicketCategory> ticketCategoryOptional = ticketCategoryRepository.findById(id);
-        TicketCategory ticketCategory = ticketCategoryOptional.orElseThrow(()-> new ResourceNotFoundException("Ticket Category Not Found"));
+        TicketCategory ticketCategory = ticketCategoryOptional.orElseThrow(() -> new ResourceNotFoundException("Ticket Category Not Found"));
 
         ticketCategoryRepository.delete(ticketCategory);
     }
@@ -128,7 +130,7 @@ public class EventServiceImpl implements EventService {
         Creator creator = creatorRepository.findByUserId(loggedInUser.getId());
 
         List<Event> eventList = eventRepository.findByCreatorId(creator.getId());
-        Optional<EventCategory> eventCategoryOptional =  eventCategoryRepository.findByCategoryName(eventRequest.getEventCategory());
+        Optional<EventCategory> eventCategoryOptional = eventCategoryRepository.findById(eventRequest.getEventCategory());
         EventCategory eventCategory = eventCategoryOptional.orElseThrow(() -> new ResourceNotFoundException("Event Category Not Found"));
 
         Event updatedEvent = null;
@@ -139,10 +141,12 @@ public class EventServiceImpl implements EventService {
                 event.setName(eventRequest.getName());
                 event.setCategory(eventCategory);
                 event.setDescription(eventRequest.getDescription());
-                event.setLocation(eventRequest.getLocation());
+                event.setCity(eventRequest.getCity());
+                event.setAddress(event.getAddress());
+                event.setLinkMaps(event.getLinkMaps());
                 event.setDate(eventRequest.getDate());
 
-                List<TicketCategoryRequest> ticketCategoryListRequest=eventRequest.getTicketCategories();
+                List<TicketCategoryRequest> ticketCategoryListRequest = eventRequest.getTicketCategories();
 
                 for (int i = 0; i < ticketCategoryList.size(); i++) {
                     if (i < ticketCategoryListRequest.size()) {
@@ -198,17 +202,17 @@ public class EventServiceImpl implements EventService {
         return generateEventResponse(updatedEvent);
     }
 
-    public EventResponse findEventById(String id){
+    public EventResponse findEventById(String id) {
         return generateEventResponse(eventRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Customer Not Found")));
 
     }
 
     public List<EventResponse> findEventByName(String eventName) {
-        List<EventResponse> eventResponseList= eventRepository.findAllByNameContaining(eventName).stream().map(this::generateEventResponse)
+        List<EventResponse> eventResponseList = eventRepository.findAllByNameContaining(eventName).stream().map(this::generateEventResponse)
                 .toList();
-        if(eventResponseList.size()<=0){
+        if (eventResponseList.size() <= 0) {
             throw new ResourceNotFoundException("Event Not Found");
-        }else{
+        } else {
             return eventResponseList;
         }
 //        return eventRepository.findAllByNameContaining(eventName).stream().map(this::generateEventResponse)
@@ -216,11 +220,11 @@ public class EventServiceImpl implements EventService {
     }
 
     public List<EventResponse> findEventByCategory(String category) {
-        List<EventResponse> eventResponseList= eventRepository.findByEventCategory(category).stream().map(this::generateEventResponse)
+        List<EventResponse> eventResponseList = eventRepository.findByEventCategory(category).stream().map(this::generateEventResponse)
                 .toList();
-        if(eventResponseList.size()<=0){
+        if (eventResponseList.size() <= 0) {
             throw new ResourceNotFoundException("Event Not Found");
-        }else{
+        } else {
             return eventResponseList;
         }
 //        return eventRepository.findByEventCategory(category).stream().map(this::generateEventResponse)
@@ -233,9 +237,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public ImageResponse uploadPoster (MultipartFile file){
+    public ImageResponse uploadPoster(MultipartFile file, String eventId) {
         User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event Not Found"));
         String fileName = fileStorageService.storeFile(file, loggedInUser.getId());
+
+        Image oldPoster = event.getPoster();
+
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(APIUrl.EVENT_API)
@@ -246,10 +254,18 @@ public class EventServiceImpl implements EventService {
         Image poster = Image.builder()
                 .name(fileName)
                 .contentType(file.getContentType())
+                .size(file.getSize())
                 .path(fileDownloadUri)
                 .build();
 
-        imageRepository.saveAndFlush(poster);
+        Image posterSaved=imageRepository.saveAndFlush(poster);
+
+        event.setPoster(posterSaved);
+        eventRepository.save(event);
+
+        if (oldPoster != null) {
+            imageRepository.delete(oldPoster);
+        }
 
         return ImageResponse.builder()
                 .name(poster.getName())
@@ -259,7 +275,7 @@ public class EventServiceImpl implements EventService {
                 .build();
     }
 
-    private TicketCategoryResponse generateTicketCategoryResponse(TicketCategory ticketCategory){
+    private TicketCategoryResponse generateTicketCategoryResponse(TicketCategory ticketCategory) {
 
         return TicketCategoryResponse.builder()
                 .id(ticketCategory.getId())
@@ -269,7 +285,7 @@ public class EventServiceImpl implements EventService {
                 .build();
     }
 
-    private EventResponse generateEventResponse(Event event){
+    private EventResponse generateEventResponse(Event event) {
 
         return EventResponse.builder()
                 .id(event.getId())
@@ -279,7 +295,9 @@ public class EventServiceImpl implements EventService {
                 .creatorName(event.getEventCreator().getName())
                 .ticketCategories(event.getTicketCategories().stream().map(this::generateTicketCategoryResponse).toList())
                 .description(event.getDescription())
-                .location(event.getLocation())
+                .city(event.getCity())
+                .address(event.getAddress())
+                .linkMap(event.getLinkMaps())
                 .build();
     }
 

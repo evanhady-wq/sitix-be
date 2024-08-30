@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<CommonResponse<String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         CommonResponse<String> response = CommonResponse.<String>builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .message(ex.getMessage())
                 .data(Optional.empty())
                 .build();
@@ -22,6 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ValidationException.class})
     public ResponseEntity<CommonResponse<String>> handleValidationException(ValidationException ex) {
         CommonResponse<String> response = CommonResponse.<String>builder()
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value())
                 .message(ex.getMessage())
                 .data(Optional.empty())
                 .build();
@@ -31,6 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({AuthenticationException.class})
     public ResponseEntity<CommonResponse<String>> handleAuthenticationException(AuthenticationException ex) {
         CommonResponse<String> response = CommonResponse.<String>builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .message(ex.getMessage())
                 .data(Optional.empty())
                 .build();
@@ -40,6 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<CommonResponse<String>> handleIllegalArgument(IllegalArgumentException ex) {
         CommonResponse<String> response = CommonResponse.<String>builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .message(ex.getMessage())
                 .data(Optional.empty())
                 .build();

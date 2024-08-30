@@ -23,21 +23,27 @@ public class TicketCategory {
 
     private String name;
     private Integer quota;
+    private Integer availableTicket;
     private Double price;
 
     public boolean hasAvailableTickets(int quantity) {
-        return quota >= quantity;
+        return availableTicket >= quantity;
     }
 
     public void reduceQuota(int quantity) {
-        if (quota >= quantity) {
-            this.quota -= quantity;
+        if (availableTicket >= quantity) {
+            this.availableTicket -= quantity;
         } else {
             throw new IllegalArgumentException("Not enough tickets available");
         }
     }
 
     public void increaseQuota(int quantity) {
-        this.quota += quantity;
+        this.availableTicket += quantity;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        availableTicket = quota;
     }
 }

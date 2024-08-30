@@ -16,7 +16,7 @@ public interface EventService {
     List<EventResponse> findEventByName(String eventName);
     List<EventResponse> findEventByCategory(String category);
     List<EventResponse> viewUpcomingEvent();
-    ImageResponse uploadPoster (MultipartFile file);
+    ImageResponse uploadPoster (MultipartFile file, String eventId);
 
 //    void deleteEvent(String id);
 }

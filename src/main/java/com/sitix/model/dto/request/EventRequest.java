@@ -1,9 +1,7 @@
 package com.sitix.model.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sitix.model.entity.Creator;
-import com.sitix.model.entity.EventCategory;
-import com.sitix.model.entity.Image;
-import com.sitix.model.entity.TicketCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +20,11 @@ public class EventRequest {
     private String eventCategory;
     private Creator creator;
     private String description;
-    private String location;
+    private String city;
+    private String address;
+    private String linkMap;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm", timezone = "Asia/Jakarta")
     private Date date;
 //    private Image imagePath;
     private List<TicketCategoryRequest> ticketCategories;

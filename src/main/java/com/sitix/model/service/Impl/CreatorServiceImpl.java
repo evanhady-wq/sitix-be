@@ -1,22 +1,32 @@
 package com.sitix.model.service.Impl;
 
+import com.sitix.constant.APIUrl;
 import com.sitix.exceptions.ResourceNotFoundException;
 import com.sitix.model.dto.request.CreatorRequest;
 import com.sitix.model.dto.response.CreatorResponse;
+import com.sitix.model.dto.response.ImageResponse;
 import com.sitix.model.entity.Creator;
+import com.sitix.model.entity.Image;
 import com.sitix.model.entity.User;
 import com.sitix.model.service.CreatorService;
+import com.sitix.model.service.FileStorageService;
 import com.sitix.repository.CreatorRepository;
+import com.sitix.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CreatorServiceImpl implements CreatorService {
     private final CreatorRepository creatorRepository;
+    private final FileStorageService fileStorageService;
+    private final ImageRepository imageRepository;
 
     public void createCreator(CreatorRequest creatorRequest) {
         Creator creator = Creator.builder()
@@ -29,6 +39,42 @@ public class CreatorServiceImpl implements CreatorService {
         creatorRepository.saveAndFlush(creator);
     }
 
+
+    public ImageResponse uploadProfile(MultipartFile file) {
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Creator creatorFound = creatorRepository.findByUserId(loggedInUser.getId());
+        String fileName = fileStorageService.storeFile(file, loggedInUser.getId());
+
+        Image oldImage = creatorFound.getProfilePicture();
+
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(APIUrl.CREATOR_API)
+                .path("/profilepicture/")
+                .path(fileName)
+                .toUriString();
+
+        Image profilePicture = Image.builder()
+                .name(fileName)
+                .contentType(file.getContentType())
+                .size(file.getSize())
+                .path(fileDownloadUri)
+                .build();
+
+        Image profilePictureSaved=imageRepository.saveAndFlush(profilePicture);
+
+        creatorFound.setProfilePicture(profilePictureSaved);
+        creatorRepository.save(creatorFound);
+
+        if (oldImage != null) {
+            imageRepository.delete(oldImage);
+        }
+        return ImageResponse.builder()
+                .name(profilePicture.getName())
+                .size(file.getSize())
+                .contentType(profilePicture.getContentType())
+                .path(profilePicture.getPath())
+                .build();
+    }
 
     public CreatorResponse editCreator (CreatorRequest creatorRequest) {
         User loggedIn = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

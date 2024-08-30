@@ -12,17 +12,5 @@ import org.springframework.stereotype.Repository;
 public class TicketCategoryServiceImpl {
     private final TicketCategoryRepository ticketCategoryRepository;
 
-//    public TicketCategory createTicketCategory(TicketCategoryRequest ticketCategoryRequest) {
-//        TicketCategory ticketCategory = TicketCategory.builder()
-//                .name(ticketCategoryRequest.getName())
-//                .quota(ticketCategoryRequest.getQuota())
-//                .price(ticketCategoryRequest.getPrice())
-//                .build();
-//
-//        ticketCategoryRepository.save(ticketCategory);
-//
-//        return ticketCategory;
-//    }
-
 
 }

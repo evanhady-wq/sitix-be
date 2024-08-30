@@ -2,6 +2,8 @@ package com.sitix.model.service;
 
 import com.sitix.model.dto.request.CreatorRequest;
 import com.sitix.model.dto.response.CreatorResponse;
+import com.sitix.model.dto.response.ImageResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,4 +16,5 @@ public interface CreatorService {
     List<CreatorResponse> viewAllCreator();
     void deleteCreator(String id);
     List<CreatorResponse> findCreatorByName(String name);
+    ImageResponse uploadProfile(MultipartFile file);
 }

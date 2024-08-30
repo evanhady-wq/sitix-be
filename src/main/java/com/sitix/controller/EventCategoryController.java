@@ -7,6 +7,7 @@ import com.sitix.model.dto.response.EventCategoryResponse;
 import com.sitix.model.service.EventCategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,9 @@ import java.util.Optional;
 public class EventCategoryController {
     private final EventCategoryService eventCategoryService;
 
-    private CommonResponse<EventCategoryResponse> generateEventCategoryResponse(String message, Optional<EventCategoryResponse> eventCategoryResponseOptional) {
+    private CommonResponse<EventCategoryResponse> generateEventCategoryResponse(Integer code, String message, Optional<EventCategoryResponse> eventCategoryResponseOptional) {
         return CommonResponse.<EventCategoryResponse>builder()
+                .statusCode(code)
                 .message(message)
                 .data(eventCategoryResponseOptional)
                 .build();
@@ -30,15 +32,15 @@ public class EventCategoryController {
     @PutMapping
     public ResponseEntity<CommonResponse<EventCategoryResponse>> editEventCategory(@Valid @RequestBody EventCategoryRequest eventCategoryRequest) {
         EventCategoryResponse update = eventCategoryService.editEventCategory(eventCategoryRequest);
-        CommonResponse<EventCategoryResponse> response = generateEventCategoryResponse("Update Event Category Success", Optional.of(update));
+        CommonResponse<EventCategoryResponse> response = generateEventCategoryResponse(HttpStatus.OK.value(),"Update Event Category Success", Optional.of(update));
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<CommonResponse<List<EventCategoryResponse>>> getAllEventCategory(){
         List<EventCategoryResponse> eventCategoryResponseList = eventCategoryService.viewAllEventCategory();
         CommonResponse<List<EventCategoryResponse>> response = CommonResponse.<List<EventCategoryResponse>> builder()
+                .statusCode(HttpStatus.OK.value())
                 .message("Success Load All Category Event")
                 .data(Optional.of(eventCategoryResponseList))
                 .build();
@@ -50,7 +52,7 @@ public class EventCategoryController {
     @PostMapping
     public ResponseEntity<CommonResponse<EventCategoryResponse>> addEventCategory(@Valid @RequestBody EventCategoryRequest eventCategoryRequest) {
         EventCategoryResponse eventCategoryResponse = eventCategoryService.createEventCategory(eventCategoryRequest);
-        CommonResponse<EventCategoryResponse> response = generateEventCategoryResponse("Success Create Category Event", Optional.of(eventCategoryResponse));
+        CommonResponse<EventCategoryResponse> response = generateEventCategoryResponse(HttpStatus.OK.value(),"Success Create Category Event", Optional.of(eventCategoryResponse));
         return ResponseEntity.ok(response);
     }
 
@@ -59,6 +61,7 @@ public class EventCategoryController {
     public ResponseEntity<CommonResponse<?>> deleteEventCategory(@PathVariable String id) {
         eventCategoryService.deleteEventCategory(id);
         CommonResponse<?> response = CommonResponse.builder()
+                .statusCode(HttpStatus.OK.value())
                 .message("Delete Success")
                 .data(Optional.empty())
                 .build();

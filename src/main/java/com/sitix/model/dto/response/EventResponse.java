@@ -1,8 +1,6 @@
 package com.sitix.model.dto.response;
 
-import com.sitix.model.entity.Creator;
-import com.sitix.model.entity.EventCategory;
-import com.sitix.model.entity.TicketCategory;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +18,11 @@ public class EventResponse {
     private String name;
     private String eventCategory;
     private String description;
-    private String location;
+    private String city;
+    private String address;
+    private String linkMap;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm", timezone = "Asia/Jakarta")
     private Date date;
     private List<TicketCategoryResponse> ticketCategories;
     private String creatorName;

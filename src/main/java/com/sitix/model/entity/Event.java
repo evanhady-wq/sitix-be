@@ -1,5 +1,6 @@
 package com.sitix.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,11 @@ public class Event {
     private EventCategory category;
 
     private String description;
-    private String location;
+    private String city;
+    private String address;
+    private String linkMaps;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm", timezone = "Asia/Jakarta")
     private Date date;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -13,6 +13,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 public class CommonResponse<T> {
+    private Integer statusCode;
     private String message;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Optional<T> data;

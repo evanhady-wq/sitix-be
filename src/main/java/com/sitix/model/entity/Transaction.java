@@ -1,5 +1,6 @@
 package com.sitix.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,8 @@ public class Transaction {
 
     private Status status;
 
-    private LocalDate paidAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Jakarta")
+    private LocalDateTime paidAt;
 
     public enum Status {
         UNPAID,
@@ -50,7 +52,7 @@ public class Transaction {
     @PreUpdate
     protected void onUpdate() {
         if (status == Status.PAID) {
-            paidAt = LocalDate.now();
+            paidAt = LocalDateTime.now();
         }
     }
 

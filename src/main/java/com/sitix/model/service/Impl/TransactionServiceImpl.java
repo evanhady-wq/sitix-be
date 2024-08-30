@@ -3,14 +3,12 @@ package com.sitix.model.service.Impl;
 import com.sitix.exceptions.ResourceNotFoundException;
 import com.sitix.model.dto.request.TransactionDetailRequest;
 import com.sitix.model.dto.request.TransactionRequest;
+import com.sitix.model.dto.response.TicketResponse;
 import com.sitix.model.dto.response.TransactionDetailResponse;
 import com.sitix.model.dto.response.TransactionResponse;
 import com.sitix.model.entity.*;
 import com.sitix.model.service.TransactionService;
-import com.sitix.repository.CustomerRepository;
-import com.sitix.repository.TicketCategoryRepository;
-import com.sitix.repository.TransactionDetailRepository;
-import com.sitix.repository.TransactionRepository;
+import com.sitix.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -27,9 +25,10 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final TicketCategoryRepository ticketCategoryRepository;
     private final TransactionDetailRepository transactionDetailRepository;
+    private final TicketRepository ticketRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private TransactionResponse generateResponse(Transaction transaction) {
+    private TransactionResponse generateTransactionResponse(Transaction transaction) {
         List<TransactionDetailResponse> transactionDetailResponseList = new ArrayList<>();
         List<TransactionDetail> transactionDetailList = transaction.getTransactionDetails();
         for (int i = 0; i < transactionDetailList.size(); i++) {
@@ -44,7 +43,11 @@ public class TransactionServiceImpl implements TransactionService {
         }
         return TransactionResponse.builder()
                 .id(transaction.getId())
+                .transactionDate(transaction.getTransactionDate())
+                .customerId(transaction.getCustomer().getId())
+                .status(transaction.getStatus())
                 .transactionDetails(transactionDetailResponseList)
+                .paidAt(transaction.getPaidAt())
                 .build();
     }
 
@@ -89,7 +92,7 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         String paymentUrl = payTransaction(transaction.getId(), totalAmount, transactionDetailList);
-        TransactionResponse transactionResponse = generateResponse(transaction);
+        TransactionResponse transactionResponse = generateTransactionResponse(transaction);
         transactionResponse.setPaymentUrl(paymentUrl);
 
         return transactionResponse;
@@ -139,6 +142,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+
     public void setTransactionStatus(Map<String, Object> notification){
         String orderId = (String) notification.get("order_id");
         String transactionStatus = (String) notification.get("transaction_status");
@@ -148,16 +152,66 @@ public class TransactionServiceImpl implements TransactionService {
 
         if ("capture".equals(transactionStatus) || "settlement".equals(transactionStatus)) {
             transaction.setStatus(Transaction.Status.PAID);
+
+            List<TransactionDetail> transactionDetails = transactionDetailRepository.findByTransactionId(transaction.getId());
+
+            for(TransactionDetail transactionDetail : transactionDetails){
+                Ticket ticket = Ticket.builder()
+                        .transaction(transaction)
+                        .event(transactionDetail.getTicketCategory().getEvent())
+                        .ticketCategory(transactionDetail.getTicketCategory())
+                        .build();
+
+                ticketRepository.saveAndFlush(ticket);
+            }
+
+
         } else if ("deny".equals(transactionStatus) || "cancel".equals(transactionStatus) || "expire".equals(transactionStatus)) {
             transaction.setStatus(Transaction.Status.CANCELLED);
 
             for (TransactionDetail detail : transaction.getTransactionDetails()) {
                 TicketCategory ticketCategory = detail.getTicketCategory();
                 ticketCategory.increaseQuota(detail.getQuantity());
-                ticketCategoryRepository.save(ticketCategory);
+                ticketCategoryRepository.saveAndFlush(ticketCategory);
             }
         }
 
-        transactionRepository.save(transaction);
+        transactionRepository.saveAndFlush(transaction);
     }
+
+    public List<TransactionResponse> viewMyTransaction (){
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Customer customer = customerRepository.findByUserId(loggedInUser.getId());
+        return transactionRepository.findTransactionByCustomerId(customer.getId()).stream().map(this::generateTransactionResponse).toList();
+
+    }
+
+    public List<TicketResponse> viewTicket (){
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Customer customer = customerRepository.findByUserId(loggedInUser.getId());
+        if (customer == null) {
+            throw new ResourceNotFoundException("Customer not found for user id: " + loggedInUser.getId());
+        }
+
+        List<Transaction> transactions = transactionRepository.findTransactionByCustomerId(customer.getId());
+
+        List<Ticket> listTicket = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            List<Ticket> ticketList = ticketRepository.findByTransactionId(transaction.getId());
+            listTicket.addAll(ticketList);
+        }
+        return listTicket.stream().map(this::generateTicketResponse).toList();
+
+    }
+
+    private TicketResponse generateTicketResponse(Ticket ticket){
+        return TicketResponse.builder()
+                .id(ticket.getId())
+                .transactionId(ticket.getTransaction().getId())
+                .eventName(ticket.getEvent().getName())
+                .ticketCategory(ticket.getTicketCategory().getName())
+                .build();
+    }
+
 }

@@ -25,7 +25,7 @@ public class SecurityConfiguration {
     private final AuthTokenFilter authTokenFilter;
 
     private static final String[] WHITE_LIST_URL = {
-            "/api/auth/**", "/api-docs/**","swagger-ui/**","/api/transaction/notification"
+            "/api/auth/**", "/api-docs/**","swagger-ui/**","/api/transaction/notification" , "/api/event/poster/**", "/api/creator/profilepicture/**","/api/eventcategory"
 
 };
 
