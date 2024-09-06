@@ -24,7 +24,7 @@ public class Creator {
     @JoinColumn(name = "image_id", unique = true)
     private Image profilePicture;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
 

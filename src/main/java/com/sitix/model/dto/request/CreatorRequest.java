@@ -16,4 +16,5 @@ public class CreatorRequest {
     private String phone;
     private String introduction;
     private User user;
+    private String pathFile;
 }

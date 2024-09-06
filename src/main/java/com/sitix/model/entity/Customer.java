@@ -19,7 +19,7 @@ public class Customer {
     private String name;
     private String phone;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
 

@@ -22,6 +22,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Jakarta")
     private LocalDateTime transactionDate;
 
     @ManyToOne
@@ -35,6 +36,8 @@ public class Transaction {
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Jakarta")
     private LocalDateTime paidAt;
+
+    private String paymentUrl;
 
     public enum Status {
         UNPAID,

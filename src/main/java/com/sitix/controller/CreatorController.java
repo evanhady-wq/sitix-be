@@ -92,8 +92,7 @@ public class CreatorController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("view/{id}")
     public ResponseEntity<CommonResponse<CreatorResponse>> getCreatorById(@PathVariable String id) {
         CreatorResponse creatorResponse = creatorService.getById(id);
         CommonResponse<CreatorResponse> response = generateCreatorResponse(HttpStatus.OK.value(),"Search Result By ID", Optional.of(creatorResponse));

@@ -80,6 +80,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .id(customer.getId())
                 .name(customer.getName())
                 .phone(customer.getPhone())
+                .isDeleted(customer.getIsDeleted())
                 .build();
     }
 }

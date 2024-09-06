@@ -41,6 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .quantity(transactionDetailList.get(i).getQuantity())
                     .transactionId(transactionDetailList.get(i).getTransaction().getId())
                     .ticketCategoryName(transactionDetailList.get(i).getTicketCategory().getName())
+                    .ticketCategoryPrice(transactionDetailList.get(i).getTicketCategory().getPrice())
                     .eventName(transactionDetailList.get(i).getTicketCategory().getEvent().getName())
                     .build();
             transactionDetailResponseList.add(transactionDetailResponse);
@@ -50,6 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .transactionDate(transaction.getTransactionDate())
                 .customerId(transaction.getCustomer().getId())
                 .status(transaction.getStatus())
+                .paymentUrl(transaction.getPaymentUrl())
                 .transactionDetails(transactionDetailResponseList)
                 .paidAt(transaction.getPaidAt())
                 .build();
@@ -97,8 +99,10 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         String paymentUrl = payTransaction(transaction.getId(), totalAmount, transactionDetailList);
+
+        transaction.setPaymentUrl(paymentUrl);
+        transactionRepository.save(transaction);
         TransactionResponse transactionResponse = generateTransactionResponse(transaction);
-        transactionResponse.setPaymentUrl(paymentUrl);
 
         return transactionResponse;
     }
@@ -187,7 +191,7 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionResponse> viewMyTransaction (){
         User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Customer customer = customerRepository.findByUserId(loggedInUser.getId());
-        return transactionRepository.findTransactionByCustomerId(customer.getId()).stream().map(this::generateTransactionResponse).toList();
+        return transactionRepository.findTransactionByCustomerId(customer.getId()).stream().map(this::generateTransactionResponse).sorted(Comparator.comparing(TransactionResponse::getTransactionDate).reversed()).toList();
 
     }
 
@@ -210,12 +214,26 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    public TicketResponse viewTicketById(String id){
+        Ticket ticket = ticketRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Ticket not Found"));
+
+        return generateTicketResponse(ticket);
+    }
+
+    public void setTicketStatus(String id){
+        Ticket ticket = ticketRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Ticket not Found"));
+        ticket.setIsUsed(true);
+        ticketRepository.save(ticket);
+    }
+
     private TicketResponse generateTicketResponse(Ticket ticket){
         return TicketResponse.builder()
                 .id(ticket.getId())
                 .transactionId(ticket.getTransaction().getId())
+                .eventId(ticket.getEvent().getId())
                 .eventName(ticket.getEvent().getName())
                 .ticketCategory(ticket.getTicketCategory().getName())
+                .isUsed(ticket.getIsUsed())
                 .build();
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 public interface EventCategoryService {
     EventCategoryResponse createEventCategory(EventCategoryRequest eventCategoryRequest);
     List<EventCategoryResponse> viewAllEventCategory();
+    EventCategoryResponse viewEventCategoryById(String id);
     EventCategoryResponse editEventCategory(EventCategoryRequest eventCategoryRequest);
-    public void deleteEventCategory(String id);
+    void deleteEventCategory(String id);
 }

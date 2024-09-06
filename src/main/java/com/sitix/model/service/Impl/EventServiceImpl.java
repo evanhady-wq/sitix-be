@@ -71,33 +71,6 @@ public class EventServiceImpl implements EventService {
         Event eventSaved =eventRepository.saveAndFlush(event);
         return generateEventResponse(event);
 
-//        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        Creator creator = creatorRepository.findByUserId(loggedInUser.getId());
-//
-//        List<TicketCategoryRequest> ticketCategoryRequestList = eventRequest.getTicketCategories();
-//        List<TicketCategory> ticketCategories = new ArrayList<>();
-//        for(TicketCategoryRequest ticketCategoryRequest : ticketCategoryRequestList){
-//            TicketCategory ticketCategory = ticketCategoryService.createTicketCategory(ticketCategoryRequest);
-//            ticketCategories.add(ticketCategory);
-//        }
-
-//        Optional<EventCategory> eventCategoryOptional =  eventCategoryRepository.findByCategoryName(eventRequest.getEventCategory());
-//        EventCategory eventCategory = eventCategoryOptional.orElseThrow(() -> new ResourceNotFoundException("Event Category Not Found"));
-//
-//        Event event = Event.builder()
-//                .name(eventRequest.getName())
-//                .category(eventCategory)
-//                .date(eventRequest.getDate())
-//                .description(eventRequest.getDescription())
-//                .location(eventRequest.getLocation())
-//                .eventCreator(creator)
-//                .ticketCategories(ticketCategories)
-//                .build();
-//
-//        ticketCategories.forEach(ticket -> ticket.setEvent(event));
-//
-//        eventRepository.saveAndFlush(event);
-//        return generateEventResponse(event);
     }
 
     public List<EventResponse> viewAllEvent() {
@@ -110,13 +83,6 @@ public class EventServiceImpl implements EventService {
 
         return eventRepository.findByCreatorId(creator.getId()).stream().map(this::generateEventResponse).toList();
     }
-
-//    public void deleteEvent(String id){
-//      Optional<Event> eventOptional = eventRepository.findById(id);
-//      Event event = eventOptional.orElseThrow(() -> new ResourceNotFoundException("Event Not Found"));
-//
-//      eventRepository.delete(event);
-//    }
 
     public void deleteTicketCategory(String id) {
         Optional<TicketCategory> ticketCategoryOptional = ticketCategoryRepository.findById(id);
@@ -142,8 +108,8 @@ public class EventServiceImpl implements EventService {
                 event.setCategory(eventCategory);
                 event.setDescription(eventRequest.getDescription());
                 event.setCity(eventRequest.getCity());
-                event.setAddress(event.getAddress());
-                event.setLinkMaps(event.getLinkMaps());
+                event.setAddress(eventRequest.getAddress());
+                event.setLinkMaps(eventRequest.getLinkMap());
                 event.setDate(eventRequest.getDate());
 
                 List<TicketCategoryRequest> ticketCategoryListRequest = eventRequest.getTicketCategories();
@@ -276,28 +242,38 @@ public class EventServiceImpl implements EventService {
     }
 
     private TicketCategoryResponse generateTicketCategoryResponse(TicketCategory ticketCategory) {
-
         return TicketCategoryResponse.builder()
                 .id(ticketCategory.getId())
                 .name(ticketCategory.getName())
                 .quota(ticketCategory.getQuota())
+                .availableTicket(ticketCategory.getAvailableTicket())
                 .price(ticketCategory.getPrice())
                 .build();
     }
 
     private EventResponse generateEventResponse(Event event) {
-
+        Optional<Image> image = Optional.ofNullable(event.getPoster())
+                .flatMap(poster -> imageRepository.findById(poster.getId()));
+        String poster;
+        if (image.isPresent()) {
+            poster = image.get().getPath();
+        } else {
+            poster = "";
+        }
         return EventResponse.builder()
                 .id(event.getId())
                 .name(event.getName())
                 .eventCategory(event.getCategory().getCategoryName())
+                .eventCategoryId(event.getCategory().getId())
                 .date(event.getDate())
                 .creatorName(event.getEventCreator().getName())
+                .creatorId(event.getEventCreator().getId())
                 .ticketCategories(event.getTicketCategories().stream().map(this::generateTicketCategoryResponse).toList())
                 .description(event.getDescription())
                 .city(event.getCity())
                 .address(event.getAddress())
                 .linkMap(event.getLinkMaps())
+                .poster(poster)
                 .build();
     }
 

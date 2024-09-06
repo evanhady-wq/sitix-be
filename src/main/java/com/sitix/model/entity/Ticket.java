@@ -28,5 +28,13 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name="transaction_id")
     private Transaction transaction;
+
+    private Boolean isUsed;
+
+    @PrePersist
+    protected void onCreate() {
+        isUsed = false;
+    }
+
 }
 

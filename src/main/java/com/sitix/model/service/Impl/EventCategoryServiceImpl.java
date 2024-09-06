@@ -4,8 +4,10 @@ import com.sitix.exceptions.ResourceNotFoundException;
 import com.sitix.model.dto.request.EventCategoryRequest;
 import com.sitix.model.dto.response.EventCategoryResponse;
 import com.sitix.model.entity.EventCategory;
+import com.sitix.model.entity.Image;
 import com.sitix.model.service.EventCategoryService;
 import com.sitix.repository.EventCategoryRepository;
+import com.sitix.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,10 @@ public class EventCategoryServiceImpl implements EventCategoryService {
 
     public List<EventCategoryResponse> viewAllEventCategory(){
         return eventCategoryRepository.findAll().stream().map(this::convertToResponse).toList();
+    }
+
+    public EventCategoryResponse viewEventCategoryById(String id){
+        return convertToResponse(eventCategoryRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Event Category Not Found")));
     }
 
     public EventCategoryResponse editEventCategory(EventCategoryRequest eventCategoryRequest){

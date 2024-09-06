@@ -16,15 +16,18 @@ import java.util.List;
 public class EventResponse {
     private String id;
     private String name;
+    private String eventCategoryId;
     private String eventCategory;
     private String description;
     private String city;
     private String address;
     private String linkMap;
+    private String poster;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm", timezone = "Asia/Jakarta")
     private Date date;
     private List<TicketCategoryResponse> ticketCategories;
     private String creatorName;
+    private String creatorId;
 
 }

@@ -14,5 +14,6 @@ public class TransactionDetailResponse {
     private Integer quantity;
     private String transactionId;
     private String ticketCategoryName;
+    private Double ticketCategoryPrice;
     private String eventName;
 }

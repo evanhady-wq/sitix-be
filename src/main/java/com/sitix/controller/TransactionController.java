@@ -5,7 +5,6 @@ import com.sitix.model.dto.request.TransactionRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.TicketResponse;
 import com.sitix.model.dto.response.TransactionResponse;
-import com.sitix.model.service.TicketService;
 import com.sitix.model.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
-//    private final TicketService ticketService;
 
     private CommonResponse<TransactionResponse> generateTransactionResponse(Integer code, String message, Optional<TransactionResponse> transaction) {
         return CommonResponse.<TransactionResponse>builder()
@@ -79,4 +77,29 @@ public class TransactionController {
         CommonResponse<List<TicketResponse>> response1 = generateListTicketResponse(HttpStatus.OK.value(), "Success Load Ticket",Optional.of(response));
         return ResponseEntity.ok(response1);
     }
+
+    @PreAuthorize("hasRole('ROLE_CREATOR')")
+    @GetMapping("/ticket/{id}")
+    public ResponseEntity<CommonResponse<TicketResponse>> viewTicketById(@PathVariable String id){
+        TicketResponse ticket = transactionService.viewTicketById(id);
+        CommonResponse<TicketResponse> response = CommonResponse.<TicketResponse> builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Load Ticket By Id")
+                .data(Optional.of(ticket))
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CREATOR')")
+    @PutMapping("/ticket/{id}")
+    public ResponseEntity<CommonResponse<?>> setTicketStatus(@PathVariable  String id){
+        transactionService.setTicketStatus(id);
+        CommonResponse<?> response = CommonResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Ticket Successfully Checked In")
+                .data(Optional.empty())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 }

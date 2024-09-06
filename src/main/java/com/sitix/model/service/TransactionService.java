@@ -12,4 +12,6 @@ public interface TransactionService {
     void setTransactionStatus(Map<String, Object> notification);
     List<TransactionResponse> viewMyTransaction();
     List<TicketResponse> viewTicket ();
+    TicketResponse viewTicketById(String id);
+    void setTicketStatus(String id);
 }

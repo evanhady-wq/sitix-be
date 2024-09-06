@@ -68,8 +68,8 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @GetMapping
+
+    @GetMapping("/allevent")
     public ResponseEntity<CommonResponse<List<EventResponse>>> viewAllEvent(){
         List<EventResponse> eventResponseList = eventService.viewAllEvent();
         CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
@@ -81,8 +81,8 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_CREATOR')")
-    @GetMapping("/{id}")
+
+    @GetMapping("/allevent/{id}")
     public ResponseEntity<CommonResponse<EventResponse>> viewEvent(@PathVariable String id){
         EventResponse eventResponse = eventService.findEventById(id);
         CommonResponse<EventResponse> response = generateEventResponse(HttpStatus.OK.value(),"Event By Id", Optional.of(eventResponse));
@@ -112,8 +112,7 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @GetMapping("/search")
+    @GetMapping("/allevent/search")
     public ResponseEntity<CommonResponse<List<EventResponse>>> viewEventByName(@RequestParam String name){
         List<EventResponse> eventResponseList = eventService.findEventByName(name);
         CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
@@ -125,8 +124,7 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @GetMapping("/category/{id}")
+    @GetMapping("allevent/category/{id}")
     public ResponseEntity<CommonResponse<List<EventResponse>>> viewEventByCategory(@PathVariable String id){
         List<EventResponse> eventResponseList = eventService.findEventByCategory(id);
         CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()
@@ -138,8 +136,7 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @GetMapping("/upcoming")
+    @GetMapping("allevent/upcoming")
     public ResponseEntity<CommonResponse<List<EventResponse>>> viewUpcomingEvent (){
         List<EventResponse> eventResponseList = eventService.viewUpcomingEvent();
         CommonResponse<List<EventResponse>> response = CommonResponse.<List<EventResponse>> builder()

@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TicketResponse {
     private String id;
+    private String eventId;
     private String eventName;
     private String ticketCategory;
     private String transactionId;
+    private Boolean isUsed;
 }

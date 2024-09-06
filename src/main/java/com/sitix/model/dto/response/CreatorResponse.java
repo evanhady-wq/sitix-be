@@ -15,5 +15,6 @@ public class CreatorResponse {
     private String name;
     private String phone;
     private String introduction;
+    private Boolean isDeleted;
     private String profilePicture;
 }

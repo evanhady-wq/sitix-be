@@ -14,5 +14,6 @@ public class CustomerResponse {
     private String id;
     private String name;
     private String phone;
+    private Boolean isDeleted;
     private Image profilePicture;
 }

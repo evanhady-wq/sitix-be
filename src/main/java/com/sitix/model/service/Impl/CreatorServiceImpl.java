@@ -82,7 +82,8 @@ public class CreatorServiceImpl implements CreatorService {
 
         creator.setName(creatorRequest.getName());
         creator.setIntroduction(creatorRequest.getIntroduction());
-        creator.setPhone(creator.getPhone());
+        creator.setPhone(creatorRequest.getPhone());
+
 
         creatorRepository.saveAndFlush(creator);
         return convertToResponse(creator);
@@ -115,7 +116,7 @@ public class CreatorServiceImpl implements CreatorService {
         Creator creator = findCreatorById(id);
         if(creator.getIsDeleted().equals(true)){
             creatorRepository.delete(creator);
-        } else throw new ResourceNotFoundException("Customer still Active");
+        } else throw new ResourceNotFoundException("Creator still Active");
     }
 
     public List<CreatorResponse> findCreatorByName(String name){
@@ -131,11 +132,19 @@ public class CreatorServiceImpl implements CreatorService {
     }
 
     private CreatorResponse convertToResponse(Creator creator) {
+        String profilePicture;
+        if (creator.getProfilePicture() == null){
+            profilePicture = "";
+        }else {
+            profilePicture = creator.getProfilePicture().getPath();
+        }
         return CreatorResponse.builder()
                 .id(creator.getId())
                 .name(creator.getName())
                 .introduction(creator.getIntroduction())
                 .phone(creator.getPhone())
+                .profilePicture(profilePicture)
+                .isDeleted(creator.getIsDeleted())
                 .build();
     }
 }

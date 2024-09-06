@@ -61,6 +61,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
+        System.out.println("Pass: " + newPassword);
+        System.out.println("Encode: " + user.getPassword());
         passwordResetTokenRepository.delete(passwordResetToken);
     }
 }

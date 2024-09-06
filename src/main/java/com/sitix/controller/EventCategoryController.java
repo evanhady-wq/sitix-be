@@ -36,13 +36,25 @@ public class EventCategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/get")
     public ResponseEntity<CommonResponse<List<EventCategoryResponse>>> getAllEventCategory(){
         List<EventCategoryResponse> eventCategoryResponseList = eventCategoryService.viewAllEventCategory();
         CommonResponse<List<EventCategoryResponse>> response = CommonResponse.<List<EventCategoryResponse>> builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Success Load All Category Event")
                 .data(Optional.of(eventCategoryResponseList))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<CommonResponse<EventCategoryResponse>> getEventCategoryById (@PathVariable String id) {
+        EventCategoryResponse eventCategoryResponse = eventCategoryService.viewEventCategoryById(id);
+        CommonResponse<EventCategoryResponse> response = CommonResponse.<EventCategoryResponse>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Success Load Category Event by id")
+                .data(Optional.of(eventCategoryResponse))
                 .build();
 
         return ResponseEntity.ok(response);

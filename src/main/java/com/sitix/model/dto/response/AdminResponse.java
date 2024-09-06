@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TicketCategoryResponse {
-    private String id;
-    private String name;
-    private Integer quota;
-    private Integer availableTicket;
-    private Double price;
+public class AdminResponse {
+    String username;
+    String email;
 }

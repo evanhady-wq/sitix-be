@@ -113,7 +113,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset")
-    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody String newPassword) {
         passwordResetService.resetPassword(token, newPassword);
         CommonResponse<?> response = CommonResponse.builder()
                 .statusCode(HttpStatus.OK.value())
@@ -122,6 +122,4 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok(response);
     }
-
-
 }
