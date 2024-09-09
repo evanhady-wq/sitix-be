@@ -13,7 +13,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
     @Query(value = "SELECT * FROM m_event WHERE creator_id = :creatorId",nativeQuery = true)
     List<Event> findByCreatorId(@Param("creatorId") String creatorId);
 
-    @Query(value = "SELECT * FROM m_event WHERE date > CURRENT_DATE", nativeQuery = true)
+    @Query(value = "SELECT * FROM m_event WHERE date > CURRENT_DATE ORDER BY date ASc LIMIT 10", nativeQuery = true)
     List<Event> findUpcomingEvents();
 
     @Query(value = "SELECT * FROM m_event WHERE name ILIKE CONCAT('%', :name, '%')", nativeQuery = true)

@@ -5,7 +5,7 @@ import com.sitix.model.dto.request.TransactionRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.TicketResponse;
 import com.sitix.model.dto.response.TransactionResponse;
-import com.sitix.model.service.TransactionService;
+import com.sitix.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,7 +78,7 @@ public class TransactionController {
         return ResponseEntity.ok(response1);
     }
 
-    @PreAuthorize("hasRole('ROLE_CREATOR')")
+    @PreAuthorize("hasAnyRole('ROLE_CREATOR','ROLE_CUSTOMER')")
     @GetMapping("/ticket/{id}")
     public ResponseEntity<CommonResponse<TicketResponse>> viewTicketById(@PathVariable String id){
         TicketResponse ticket = transactionService.viewTicketById(id);

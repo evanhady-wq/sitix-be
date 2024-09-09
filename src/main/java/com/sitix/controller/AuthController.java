@@ -5,16 +5,13 @@ import com.sitix.model.dto.request.*;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.LoginResponse;
 import com.sitix.model.dto.response.RegisterResponse;
-import com.sitix.model.entity.User;
-import com.sitix.model.service.AuthService;
-import com.sitix.model.service.PasswordResetService;
-import com.sitix.model.service.UserService;
+import com.sitix.service.AuthService;
+import com.sitix.service.PasswordResetService;
+import com.sitix.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -68,31 +65,6 @@ public class AuthController {
 
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/change-password")
-    public ResponseEntity<CommonResponse<?>> changePassword(@RequestBody ChangePasswordRequest request) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = user.getUsername();
-        CommonResponse<?> response = CommonResponse.builder()
-                .statusCode(HttpStatus.OK.value())
-                .message("Password changed successfully")
-                .data(Optional.empty())
-                .build();
-
-        CommonResponse<?> failedResponse = CommonResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message("Old password incorrect")
-                .data(Optional.empty())
-                .build();
-
-        boolean isChanged = userService.changePassword(username, request);
-        if (isChanged) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.ok(failedResponse);
-        }
-    }
-
     private CommonResponse<RegisterResponse> generateRegisterResponse(Integer code, Optional<RegisterResponse> registerResponse) {
         return CommonResponse.<RegisterResponse>builder()
                 .statusCode(code)
@@ -121,5 +93,28 @@ public class AuthController {
                 .data(Optional.empty())
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_CREATOR','ROLE_CUSTOMER')")
+    @PutMapping("/change-password")
+    public ResponseEntity<CommonResponse<?>> changePassword(@RequestBody ChangePasswordRequest request) {
+        CommonResponse<?> response = CommonResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Password changed successfully")
+                .data(Optional.empty())
+                .build();
+
+        CommonResponse<?> failedResponse = CommonResponse.builder()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message("Old password incorrect")
+                .data(Optional.empty())
+                .build();
+
+        boolean isChanged = passwordResetService.changePassword(request);
+        if (isChanged) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.ok(failedResponse);
+        }
     }
 }

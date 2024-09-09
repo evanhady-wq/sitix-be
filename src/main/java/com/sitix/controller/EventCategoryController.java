@@ -4,7 +4,7 @@ import com.sitix.constant.APIUrl;
 import com.sitix.model.dto.request.EventCategoryRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.EventCategoryResponse;
-import com.sitix.model.service.EventCategoryService;
+import com.sitix.service.EventCategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

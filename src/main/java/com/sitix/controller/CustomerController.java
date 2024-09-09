@@ -4,7 +4,7 @@ import com.sitix.constant.APIUrl;
 import com.sitix.model.dto.request.CustomerRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.CustomerResponse;
-import com.sitix.model.service.CustomerService;
+import com.sitix.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,13 +40,13 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @DeleteMapping("/profile")
-    public ResponseEntity<CommonResponse<CustomerResponse>> deleteAccount() {
-        customerService.deleteAccount();
-        CommonResponse<CustomerResponse> response = generateCustomerResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
-        return ResponseEntity.ok(response);
-    }
+//    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+//    @DeleteMapping("/profile")
+//    public ResponseEntity<CommonResponse<CustomerResponse>> deleteAccount() {
+//        customerService.deleteAccount();
+//        CommonResponse<CustomerResponse> response = generateCustomerResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
+//        return ResponseEntity.ok(response);
+//    }
 
     //ADMIN AUTHORITY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -72,7 +72,7 @@ public class CustomerController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<CommonResponse<CustomerResponse>> deleteAccountCustomer(@PathVariable String id) {
-        customerService.deleteCustomer(id);
+        customerService.deleteAccount(id);
         CommonResponse<CustomerResponse> response = generateCustomerResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
         return ResponseEntity.ok(response);
     }

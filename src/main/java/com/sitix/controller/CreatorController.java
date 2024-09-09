@@ -5,8 +5,8 @@ import com.sitix.model.dto.request.CreatorRequest;
 import com.sitix.model.dto.response.CommonResponse;
 import com.sitix.model.dto.response.CreatorResponse;
 import com.sitix.model.dto.response.ImageResponse;
-import com.sitix.model.service.CreatorService;
-import com.sitix.model.service.FileStorageService;
+import com.sitix.service.CreatorService;
+import com.sitix.service.FileStorageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -70,13 +70,13 @@ public class CreatorController {
                 .body(new ByteArrayResource(image));
     }
 
-    @PreAuthorize("hasRole('ROLE_CREATOR')")
-    @DeleteMapping("/profile")
-    public ResponseEntity<CommonResponse<CreatorResponse>> deleteAccount(){
-        creatorService.deleteAccount();
-        CommonResponse<CreatorResponse> response = generateCreatorResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
-        return ResponseEntity.ok(response);
-    }
+//    @PreAuthorize("hasRole('ROLE_CREATOR')")
+//    @DeleteMapping("/profile")
+//    public ResponseEntity<CommonResponse<CreatorResponse>> deleteAccount(){
+//        creatorService.deleteAccount(id);
+//        CommonResponse<CreatorResponse> response = generateCreatorResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
+//        return ResponseEntity.ok(response);
+//    }
 
     //ADMIN AUTHORITY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -102,7 +102,7 @@ public class CreatorController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<CommonResponse<CreatorResponse>> deleteAccountCreator(@PathVariable String id) {
-        creatorService.deleteCreator(id);
+        creatorService.deleteAccount(id);
         CommonResponse<CreatorResponse> response = generateCreatorResponse(HttpStatus.OK.value(),"Delete Success", Optional.empty());
         return ResponseEntity.ok(response);
     }

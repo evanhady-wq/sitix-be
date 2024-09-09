@@ -1,7 +1,7 @@
 package com.sitix.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.sitix.model.service.UserService;
+import com.sitix.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
